@@ -1,6 +1,6 @@
 %define name 	nss_ldap
 %define version 257
-%define release %mkrel 1
+%define release %mkrel 2
 
 Summary:	NSS library and PAM module for LDAP
 Name: 		%{name}
@@ -14,6 +14,12 @@ BuildRequires:	automake1.4
 Source0:	http://www.padl.com/download/%{name}-%{version}.tar.gz
 Patch0:		nss_ldap-makefile.patch
 Patch1:		nss_ldap-250-bind_policy_default_soft.patch
+# http://bugzilla.padl.com/show_bug.cgi?id=338
+Patch2:         nss_ldap-257-uri.patch
+# http://bugzilla.padl.com/show_bug.cgi?id=332
+Patch3:         nss_ldap-257-pwchangemapping.patch
+# http://bugzilla.padl.com/show_bug.cgi?id=343
+Patch4:         nss_ldap-257-dnsdomain.patch
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
@@ -29,6 +35,9 @@ rm -rf $RPM_BUILD_ROOT
 %setup -q
 %patch0 -p1 -b .makefile
 %patch1 -p1 -b .bind_policy_soft
+%patch2 -p1 -b .uri
+%patch3 -p1 -b .pwchangemap
+%patch4 -p1 -b .dnsdomain
 # first line not commented upstream for some reason
 perl -pi -e 's/^ /#/' ldap.conf
 
