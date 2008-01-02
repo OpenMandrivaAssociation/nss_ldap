@@ -14,6 +14,7 @@ BuildRequires:	automake1.4
 Source0:	http://www.padl.com/download/%{name}-%{version}.tar.gz
 Patch0:		nss_ldap-makefile.patch
 Patch1:		nss_ldap-250-bind_policy_default_soft.patch
+BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
 This package includes two LDAP access clients: nss_ldap and pam_ldap.
