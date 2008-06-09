@@ -66,13 +66,17 @@ rm -rf	$RPM_BUILD_ROOT%{_sysconfdir}/nsswitch.ldap \
 rm -rf $RPM_BUILD_ROOT
 
 %post
+%if %mdkversion < 200900
 /sbin/ldconfig
+%endif
 if [ -f /etc/init.d/nscd ]; then
 	/sbin/service nscd restart >/dev/null 2>/dev/null || :
 fi
 
 %postun
+%if %mdkversion < 200900
 /sbin/ldconfig
+%endif
 if [ -f /etc/init.d/nscd ]; then
 	/sbin/service nscd restart >/dev/null 2>/dev/null || :
 fi
