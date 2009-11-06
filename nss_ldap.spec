@@ -1,6 +1,6 @@
 %define name 	nss_ldap
-%define version 264
-%define release %mkrel 3
+%define version 265
+%define release %mkrel 1
 
 Summary:	NSS library and PAM module for LDAP
 Name: 		%{name}
@@ -12,7 +12,7 @@ URL: 		http://www.padl.com/
 BuildRequires:	openldap-devel >= 2.0.7-7.1mdk
 BuildRequires:	automake
 Source0:	http://www.padl.com/download/%{name}-%{version}.tar.gz
-Patch0:		nss_ldap-264-Makefile.patch
+Patch0:		nss_ldap-265-Makefile.patch
 Patch1:		nss_ldap-250-bind_policy_default_soft.patch
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
 
@@ -24,7 +24,7 @@ groups, hosts, networks, protocol, users, RPCs, services and shadow
 passwords (instead of or in addition to using flat files or NIS).
 
 %prep
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %setup -q
 %patch0 -p1 -b .makefile
@@ -35,35 +35,31 @@ perl -pi -e 's/^ /#/' ldap.conf
 %build
 
 %serverbuild
-# Build nss_ldap.
-#aclocal && automake && autoheader && autoconf
-#autoreconf --force
-
-rm -f configure
-libtoolize --copy --force; aclocal; autoconf; automake
-
-%configure --enable-schema-mapping --with-ldap-lib=openldap --enable-debug \
---enable-rfc2307bis --enable-sfu-mapping --enable-ids-uid --libdir=/%{_lib}
+autoreconf
+%configure2_5x \
+    --with-ldap-lib=openldap \
+    --enable-rfc2307bis \
+    --libdir=/%{_lib}
 %__make INST_UID=`id -u` INST_GID=`id -g`
 
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}
-install -d $RPM_BUILD_ROOT/%{_lib}/security
+install -d %{buildroot}%{_sysconfdir}
+install -d %{buildroot}/%{_lib}/security
 
 # Install the nsswitch module.
 %make install DESTDIR="${RPM_BUILD_ROOT}" INST_UID=`id -u` INST_GID=`id -g` \
 	libdir=/%{_lib}
 
-echo "secret" > $RPM_BUILD_ROOT/%{_sysconfdir}/ldap.secret
+echo "secret" > %{buildroot}/%{_sysconfdir}/ldap.secret
 
 # Remove unpackaged file
-rm -rf	$RPM_BUILD_ROOT%{_sysconfdir}/nsswitch.ldap \
-	$RPM_BUILD_ROOT%{_libdir}/libnss_ldap.so.2
+rm -rf	%{buildroot}%{_sysconfdir}/nsswitch.ldap \
+	%{buildroot}%{_libdir}/libnss_ldap.so.2
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %post
 %if %mdkversion < 200900
