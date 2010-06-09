@@ -1,6 +1,6 @@
 %define name 	nss_ldap
 %define version 265
-%define release %mkrel 1
+%define release %mkrel 2
 
 Summary:	NSS library and PAM module for LDAP
 Name: 		%{name}
@@ -14,6 +14,7 @@ BuildRequires:	automake
 Source0:	http://www.padl.com/download/%{name}-%{version}.tar.gz
 Patch0:		nss_ldap-265-Makefile.patch
 Patch1:		nss_ldap-250-bind_policy_default_soft.patch
+Suggests:	nscd
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
