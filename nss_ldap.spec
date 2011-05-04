@@ -1,6 +1,6 @@
 %define name 	nss_ldap
 %define version 265
-%define release %mkrel 3
+%define release %mkrel 4
 
 Summary:	NSS library and PAM module for LDAP
 Name: 		%{name}
