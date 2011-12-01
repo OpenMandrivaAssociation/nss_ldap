@@ -50,7 +50,7 @@ install -d %{buildroot}%{_sysconfdir}
 install -d %{buildroot}/%{_lib}/security
 
 # Install the nsswitch module.
-%make install DESTDIR="${RPM_BUILD_ROOT}" INST_UID=`id -u` INST_GID=`id -g` \
+%make install DESTDIR="%{buildroot}" INST_UID=`id -u` INST_GID=`id -g` \
 	libdir=/%{_lib}
 
 echo "secret" > %{buildroot}/%{_sysconfdir}/ldap.secret
