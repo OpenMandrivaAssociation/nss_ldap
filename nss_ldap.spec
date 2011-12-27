@@ -14,6 +14,7 @@ BuildRequires:	automake
 Source0:	http://www.padl.com/download/%{name}-%{version}.tar.gz
 Patch0:		nss_ldap-265-Makefile.patch
 Patch1:		nss_ldap-250-bind_policy_default_soft.patch
+Patch2:		nss_ldap-265-arm.patch
 Suggests:	nscd
 BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
 
@@ -30,6 +31,9 @@ rm -rf %{buildroot}
 %setup -q
 %patch0 -p1 -b .makefile
 %patch1 -p1 -b .bind_policy_soft
+%ifarch %arm
+%patch2 -p1 -b .arm
+%endif
 # first line not commented upstream for some reason
 perl -pi -e 's/^ /#/' ldap.conf
 
