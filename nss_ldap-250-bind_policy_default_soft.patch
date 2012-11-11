@@ -1,0 +1,41 @@
+--- nss_ldap-250/nss_ldap.5.bind_policy_soft	2006-04-27 03:19:00.000000000 +0200
++++ nss_ldap-250/nss_ldap.5	2006-05-02 18:11:16.000000000 +0200
+@@ -291,18 +291,21 @@
+ .I
+ LDAP
+ server. The default is
++.B soft
++, where
++.B nss_ldap
++will return immediately on server failure. All "hard" reconnect
++policies block with exponential backoff before retrying.
++If
+ .B hard_open,
+-which reconnects if opening the connection to the directory server
++is specified, then
++.B nss_ldap
++reconnects if opening the connection to the directory server
+ failed. By contrast,
+ .B hard_init
+ reconnects if initializing the connection failed. Initializing may not
+ actually contact the directory server, and it is possible that a
+ malformed configuration file will trigger reconnection. If
+-.B soft
+-is specified, then
+-.B nss_ldap
+-will return immediately on server failure. All "hard" reconnect
+-policies block with exponential backoff before retrying.
+ .TP
+ .B nss_connect_policy <persist|oneshot>
+ Determines whether nss_ldap persists connections. The default
+--- nss_ldap-250/util.c.bind_policy_soft	2006-04-27 03:19:00.000000000 +0200
++++ nss_ldap-250/util.c	2006-05-02 14:27:14.000000000 +0200
+@@ -639,7 +639,7 @@
+   result->ldc_tls_key = NULL;
+   result->ldc_tls_randfile = NULL;
+   result->ldc_idle_timelimit = 0;
+-  result->ldc_reconnect_pol = LP_RECONNECT_HARD_OPEN;
++  result->ldc_reconnect_pol = LP_RECONNECT_SOFT;
+   result->ldc_sasl_secprops = NULL;
+   result->ldc_srv_domain = NULL;
+   result->ldc_logdir = NULL;

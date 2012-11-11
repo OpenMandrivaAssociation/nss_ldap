@@ -1,0 +1,11 @@
+--- nss_ldap-265/configure.in.orig	2011-12-27 16:44:57.951838803 -0200
++++ nss_ldap-265/configure.in	2011-12-27 16:45:21.942838957 -0200
+@@ -99,7 +99,7 @@ linux*) nss_ldap_so_LDFLAGS="-shared -Wl
+ esac
+ 
+ AM_CONDITIONAL(GCC, test "$GCC" = "yes")
+-AM_CONDITIONAL(GLIBC, test "$target_os" = "linux" -o "$target_os" = "linux-gnu")
++AM_CONDITIONAL(GLIBC, test "$target_os" = "linux" -o "$target_os" = "linux-gnu" -o "$target_os" = "linux-gnueabi")
+ AM_CONDITIONAL(AIX, test "$TARGET_OS" = AIX)
+ AM_CONDITIONAL(HPUX, test "$TARGET_OS" = HPUX)
+ 
