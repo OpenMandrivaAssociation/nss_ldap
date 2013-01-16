@@ -1,0 +1,15 @@
+--- nss_ldap-265/configure.in.bero	2013-01-16 01:30:25.367085688 +0100
++++ nss_ldap-265/configure.in	2013-01-16 01:30:40.204907804 +0100
+@@ -1,9 +1,9 @@
+-AC_INIT(ldap-nss.c)
++AC_INIT(nss_ldap, 265)
+ AC_CANONICAL_SYSTEM
+ AC_PREFIX_DEFAULT()
+ 
+-AM_INIT_AUTOMAKE(nss_ldap, 265)
+-AM_CONFIG_HEADER(config.h)
++AM_INIT_AUTOMAKE
++AC_CONFIG_HEADERS([config.h])
+ AM_MAINTAINER_MODE
+ 
+ AC_PROG_CC

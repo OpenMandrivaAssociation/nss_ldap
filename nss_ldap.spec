@@ -1,11 +1,7 @@
-%define name 	nss_ldap
-%define version 265
-%define release %mkrel 5
-
 Summary:	NSS library and PAM module for LDAP
-Name: 		%{name}
-Version: 	%{version}
-Release: 	%{release}
+Name: 		nss_ldap
+Version: 	265
+Release: 	6
 License:	LGPL
 Group:		System/Libraries
 URL: 		http://www.padl.com/
@@ -14,8 +10,8 @@ BuildRequires:	automake
 Source0:	http://www.padl.com/download/%{name}-%{version}.tar.gz
 Patch0:		nss_ldap-265-Makefile.patch
 Patch1:		nss_ldap-250-bind_policy_default_soft.patch
+Patch2:		nss-ldap-automake-1.13.patch
 Suggests:	nscd
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
 This package includes two LDAP access clients: nss_ldap and pam_ldap.
@@ -28,8 +24,7 @@ passwords (instead of or in addition to using flat files or NIS).
 rm -rf %{buildroot}
 
 %setup -q
-%patch0 -p1 -b .makefile
-%patch1 -p1 -b .bind_policy_soft
+%apply_patches
 # first line not commented upstream for some reason
 perl -pi -e 's/^ /#/' ldap.conf
 
