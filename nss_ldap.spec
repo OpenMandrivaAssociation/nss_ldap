@@ -1,7 +1,7 @@
 Summary:	NSS library and PAM module for LDAP
 Name: 		nss_ldap
 Version: 	265
-Release: 	6
+Release: 	7
 License:	LGPL
 Group:		System/Libraries
 URL: 		http://www.padl.com/
