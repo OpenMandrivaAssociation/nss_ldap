@@ -1,69 +1,103 @@
-Summary:	NSS library and PAM module for LDAP
-Name:		nss_ldap
-Version:	265
-Release:	17
-License:	LGPLv2
-Group:		System/Libraries
-Url:		http://www.padl.com/
-Source0:	http://www.padl.com/download/%{name}-%{version}.tar.gz
-Patch0:		nss_ldap-265-Makefile.patch
-Patch1:		nss_ldap-250-bind_policy_default_soft.patch
-Patch2:		nss-ldap-automake-1.13.patch
-BuildRequires:	openldap-devel
-Suggests:	nscd
+%global nssdir /%{_lib}
+%global pamdir /%{_lib}/security
+
+%define _hardened_build 1
+
+Name:           nss_ldap
+Version:        0.9.10
+Release:        1%{?dist}
+Summary:        An nsswitch module which uses directory servers
+License:        LGPLv2+
+URL:            http://arthurdejong.org/nss-pam-ldapd/
+Source0:        http://arthurdejong.org/nss-pam-ldapd/nss-pam-ldapd-%{version}.tar.gz
+Source1:        http://arthurdejong.org/nss-pam-ldapd/nss-pam-ldapd-%{version}.tar.gz.sig
+Source3:        nslcd.tmpfiles
+Source4:        nslcd.service
+
+# Pylint tests fail w/o certain imports and are not needed for nslcd anyway,
+# plus, we don't ship the python utilities
+Patch0001:      0001-Disable-pylint-tests.patch
+Patch0002:      0002-Watch-for-uint32_t-overflows.patch
+
+BuildRequires:  openldap-devel, krb5-devel
+BuildRequires:  autoconf, automake
+BuildRequires:  pam-devel
+BuildRequires:  systemd-units
+%{?systemd_requires}
+
+# Pull in nscd, which is recommended.
+Recommends:     nscd
+
+Obsoletes:      nss-ldapd < 0.7
+Provides:       nss-ldapd = %{version}-%{release}
+
+# Obsolete PADL's nss_ldap
+Provides:       nss_ldap = 265-12
+Obsoletes:      nss_ldap < 265-11
+
+# Obsolete PADL's pam_ldap
+Provides:       pam_ldap = 185-15
+Obsoletes:      pam_ldap < 185-15
 
 %description
-This package includes two LDAP access clients:	nss_ldap and pam_ldap.
-Nss_ldap is a set of C library extensions which allows X.500 and LDAP
-directory servers to be used as a primary source of aliases, ethers,
-groups, hosts, networks, protocol, users, RPCs, services and shadow
-passwords (instead of or in addition to using flat files or NIS).
+The nss-pam-ldapd daemon, nslcd, uses a directory server to look up name
+service information (users, groups, etc.) on behalf of a lightweight
+nsswitch module.
 
 %prep
-%setup -q
-%apply_patches
-# first line not commented upstream for some reason
-perl -pi -e 's/^ /#/' ldap.conf
-autoreconf
+%autosetup -n nss-pam-ldapd-%{version} -p1
+autoreconf -f -i
 
 %build
-%serverbuild
-export CFLAGS="%{optflags} -fPIC"
-%configure2_5x \
-	--with-ldap-lib=openldap \
-	--enable-rfc2307bis \
-	--libdir=/%{_lib}
-make INST_UID=`id -u` INST_GID=`id -g`
+%configure --libdir=%{nssdir} \
+           --disable-utils \
+           --with-pam-seclib-dir=%{pamdir}
+%make_build
+
+%check
+make check
 
 %install
-install -d %{buildroot}%{_sysconfdir}
-install -d %{buildroot}/%{_lib}/security
+rm -rf $RPM_BUILD_ROOT
+make install DESTDIR=$RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT/{%{_libdir},%{_unitdir}}
+install -p -m644 %{SOURCE4} $RPM_BUILD_ROOT/%{_unitdir}/
 
-# Install the nsswitch module.
-%make install DESTDIR="%{buildroot}" INST_UID=`id -u` INST_GID=`id -g` \
-	libdir=/%{_lib}
+ln -s libnss_ldap.so.2 $RPM_BUILD_ROOT/%{nssdir}/libnss_ldap.so
 
-echo "secret" > %{buildroot}/%{_sysconfdir}/ldap.secret
-
-# Remove unpackaged file
-rm -rf	%{buildroot}%{_sysconfdir}/nsswitch.ldap \
-	%{buildroot}%{_libdir}/libnss_ldap.so.2
-
-%post
-if [ -f /etc/init.d/nscd ]; then
-	/sbin/service nscd restart >/dev/null 2>/dev/null || :
-fi
-
-%postun
-if [ -f /etc/init.d/nscd ]; then
-	/sbin/service nscd restart >/dev/null 2>/dev/null || :
-fi
+sed -i -e 's,^uid.*,uid nslcd,g' -e 's,^gid.*,gid ldap,g' \
+$RPM_BUILD_ROOT/%{_sysconfdir}/nslcd.conf
+touch -r nslcd.conf $RPM_BUILD_ROOT/%{_sysconfdir}/nslcd.conf
+mkdir -p -m 0755 $RPM_BUILD_ROOT/var/run/nslcd
+mkdir -p -m 0755 $RPM_BUILD_ROOT/%{_tmpfilesdir}
+install -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT/%{_tmpfilesdir}/%{name}.conf
 
 %files
-%doc ANNOUNCE AUTHORS ChangeLog COPYING NEWS README doc INSTALL
-%doc nsswitch.ldap certutil ldap.conf
-%attr (600,root,root) %config(noreplace) %{_sysconfdir}/ldap.secret
-%attr (644,root,root) %config(noreplace) %{_sysconfdir}/ldap.conf
-/%{_lib}/*so*
-%{_mandir}/man5/nss_ldap.5.*
+%doc AUTHORS ChangeLog COPYING HACKING NEWS README TODO
+%{_sbindir}/*
+%{nssdir}/*.so*
+%{pamdir}/pam_ldap.so
+%{_mandir}/*/*
+%attr(0600,root,root) %config(noreplace) %verify(not md5 size mtime) /etc/nslcd.conf
+%attr(0644,root,root) %config(noreplace) %{_tmpfilesdir}/%{name}.conf
+%{_unitdir}/nslcd.service
+%attr(0775,nslcd,root) /var/run/nslcd
 
+%pre
+getent group  ldap  > /dev/null || \
+/usr/sbin/groupadd -r -g 55 ldap
+getent passwd nslcd > /dev/null || \
+/usr/sbin/useradd -r -g ldap -c 'LDAP Client User' \
+    -u 65 -d / -s /sbin/nologin nslcd 2> /dev/null || :
+
+%post
+# The usual stuff.
+/sbin/ldconfig
+%systemd_post nslcd.service
+
+%preun
+%systemd_preun nslcd.service
+
+%postun
+/sbin/ldconfig
+%systemd_postun_with_restart nslcd.service
