@@ -5,7 +5,7 @@
 
 Name:           nss_ldap
 Version:        0.9.10
-Release:        1%{?dist}
+Release:        1
 Summary:        An nsswitch module which uses directory servers
 License:        LGPLv2+
 URL:            http://arthurdejong.org/nss-pam-ldapd/
@@ -31,13 +31,9 @@ Recommends:     nscd
 Obsoletes:      nss-ldapd < 0.7
 Provides:       nss-ldapd = %{version}-%{release}
 
-# Obsolete PADL's nss_ldap
-Provides:       nss_ldap = 265-12
-Obsoletes:      nss_ldap < 265-11
-
 # Obsolete PADL's pam_ldap
-Provides:       pam_ldap = 185-15
-Obsoletes:      pam_ldap < 185-15
+Provides:       pam_ldap = 186-15
+Obsoletes:      pam_ldap < 186-15
 
 %description
 The nss-pam-ldapd daemon, nslcd, uses a directory server to look up name
@@ -89,15 +85,3 @@ getent group  ldap  > /dev/null || \
 getent passwd nslcd > /dev/null || \
 /usr/sbin/useradd -r -g ldap -c 'LDAP Client User' \
     -u 65 -d / -s /sbin/nologin nslcd 2> /dev/null || :
-
-%post
-# The usual stuff.
-/sbin/ldconfig
-%systemd_post nslcd.service
-
-%preun
-%systemd_preun nslcd.service
-
-%postun
-/sbin/ldconfig
-%systemd_postun_with_restart nslcd.service
