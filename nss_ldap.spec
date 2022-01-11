@@ -24,7 +24,7 @@ BuildRequires:	openldap-devel
 BuildRequires:	krb5-devel
 BuildRequires:	autoconf, automake
 BuildRequires:	pam-devel
-BuildRequires:	systemd-macros
+BuildRequires:	systemd-rpm-macros
 %{?systemd_requires}
 Requires(pre):	glibc
 Requires(pre):	shadow
