@@ -5,8 +5,8 @@
 
 Name:		nss_ldap
 Epoch:		1
-Version:	0.9.10
-Release:	3
+Version:	0.9.12
+Release:	1
 Summary:	An nsswitch module which uses directory servers
 License:	LGPLv2+
 URL:		http://arthurdejong.org/nss-pam-ldapd/
