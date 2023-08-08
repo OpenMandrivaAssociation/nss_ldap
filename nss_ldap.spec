@@ -6,7 +6,7 @@
 Name:		nss_ldap
 Epoch:		1
 Version:	0.9.12
-Release:	2
+Release:	3
 Summary:	An nsswitch module which uses directory servers
 License:	LGPLv2+
 URL:		http://arthurdejong.org/nss-pam-ldapd/
@@ -20,7 +20,7 @@ Source4:	nslcd.service
 Patch0001:	0001-Disable-pylint-tests.patch
 Patch0002:	0002-Watch-for-uint32_t-overflows.patch
 
-BuildRequires:	openldap-devel
+BuildRequires:	pkgconfig(ldap)
 BuildRequires:	krb5-devel
 BuildRequires:	autoconf, automake
 BuildRequires:	pam-devel
