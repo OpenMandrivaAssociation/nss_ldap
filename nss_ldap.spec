@@ -1,12 +1,11 @@
-%global nssdir /%{_lib}
-%global pamdir /%{_lib}/security
+%global nssdir %{_libdir}
+%global pamdir %{_libdir}/security
 
 %define _hardened_build 1
 
 Name:		nss_ldap
-Epoch:		1
 Version:	0.9.12
-Release:	3
+Release:	4
 Summary:	An nsswitch module which uses directory servers
 License:	LGPLv2+
 URL:		https://arthurdejong.org/nss-pam-ldapd/
@@ -72,12 +71,11 @@ mkdir -p -m 0755 %{buildroot}/var/run/nslcd
 mkdir -p -m 0755 %{buildroot}%{_tmpfilesdir}
 install -p -m 0644 %{SOURCE3} %{buildroot}%{_tmpfilesdir}/%{name}.conf
 
-%pre
-getent group  ldap  > /dev/null || \
-/usr/sbin/groupadd -r -g 55 ldap
-getent passwd nslcd > /dev/null || \
-/usr/sbin/useradd -r -g ldap -c 'LDAP Client User' \
-    -u 65 -d / -s /sbin/nologin nslcd 2> /dev/null || :
+mkdir -p %{buildroot}%{_sysusersdir}
+cat >%{buildroot}%{_sysusersdir}/%{name}.conf <<EOF
+g ldap 55
+u nslcd 65:55 "LDAP Client User" / %{_sbindir}/nologin
+EOF
 
 %files
 %doc AUTHORS ChangeLog COPYING HACKING NEWS README TODO
@@ -88,4 +86,5 @@ getent passwd nslcd > /dev/null || \
 %attr(0600,root,root) %config(noreplace) %verify(not md5 size mtime) /etc/nslcd.conf
 %attr(0644,root,root) %config(noreplace) %{_tmpfilesdir}/%{name}.conf
 %{_unitdir}/nslcd.service
-%attr(0775,nslcd,root) /var/run/nslcd
+%attr(0775,nslcd,ldap) /var/run/nslcd
+%{_sysusersdir}/%{name}.conf
