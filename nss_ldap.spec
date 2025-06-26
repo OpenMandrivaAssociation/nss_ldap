@@ -1,11 +1,11 @@
-%global nssdir %{_libdir}
-%global pamdir %{_libdir}/security
+%global		nssdir %{_libdir}
+%global		pamdir %{_libdir}/security
 
-%define _hardened_build 1
+%define		_hardened_build 1
 
 Name:		nss_ldap
-Version:	0.9.12
-Release:	4
+Version:		0.9.12
+Release:		5
 Summary:	An nsswitch module which uses directory servers
 License:	LGPLv2+
 URL:		https://arthurdejong.org/nss-pam-ldapd/
@@ -13,7 +13,6 @@ Source0:	http://arthurdejong.org/nss-pam-ldapd/nss-pam-ldapd-%{version}.tar.gz
 Source1:	http://arthurdejong.org/nss-pam-ldapd/nss-pam-ldapd-%{version}.tar.gz.sig
 Source3:	nslcd.tmpfiles
 Source4:	nslcd.service
-
 # Pylint tests fail w/o certain imports and are not needed for nslcd anyway,
 # plus, we don't ship the python utilities
 Patch0001:	0001-Disable-pylint-tests.patch
